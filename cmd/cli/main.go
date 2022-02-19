@@ -10,6 +10,7 @@ import (
 	"path"
 	"strings"
 
+	"Gartenschlaeger/github-labeler/pkg/cli"
 	"Gartenschlaeger/github-labeler/pkg/githubapi"
 	"Gartenschlaeger/github-labeler/pkg/types"
 )
@@ -92,7 +93,7 @@ func main() {
 	// create
 	for labelName, label := range *definedLabels {
 		if _, found := (*repoLabels)[labelName]; !found {
-			fmt.Println("CREATE", label.Name)
+			fmt.Printf("%vCREATE '%s'%v\n", cli.Green, label.Name, cli.Reset)
 			githubapi.CreateLabel(*owner, *repo, &label)
 		}
 	}
@@ -101,11 +102,11 @@ func main() {
 	for repoLabelName, repoLabel := range *repoLabels {
 		if matchedLabel, found := (*definedLabels)[repoLabelName]; found {
 			if matchedLabel.Name != repoLabel.Name || matchedLabel.Color != repoLabel.Color || matchedLabel.Description != repoLabel.Description {
-				fmt.Println("UPDATE", repoLabel.Name)
+				fmt.Printf("%vUPDATE '%s'%v\n", cli.Blue, repoLabel.Name, cli.Reset)
 				githubapi.UpdateLabel(*owner, *repo, repoLabelName, &matchedLabel)
 			}
 		} else {
-			fmt.Println("DELETE", repoLabel.Name)
+			fmt.Printf("%vDELETE '%s'%v\n", cli.Red, repoLabel.Name, cli.Reset)
 			githubapi.DeleteLabel(*owner, *repo, repoLabelName)
 		}
 	}
