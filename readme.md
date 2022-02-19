@@ -1,10 +1,15 @@
 # Github Labeler
 
-Purpose of this application is to merge default label sets for your repository.
+The purpose of this application is to sync your default labels with a repository hosted by Github.
+Labeler automatically merges your labels into the repository using a template file.
+
+After the run, missing labels are added, unknown labels are removed and existing labels are checked for changes.
+
+Please note that label links to issues are lost when a label is removed.
 
 # Usage
 
-Simple run the binary and define the following arguments:
+Just run the binary and define the following arguments:
 
 -   `-t` Your Github Token used for Github API requests
 -   `-o` Your Github Username
@@ -14,7 +19,7 @@ Simple run the binary and define the following arguments:
 labeler -t <token> -o <owner> -r <repo>
 ```
 
-You can also use the following environment variables to define defaults.
+You can also use the following environment variables to define default values.
 
 -   `LABELER_TOKEN`
 -   `LABELER_OWNER`
@@ -22,8 +27,8 @@ You can also use the following environment variables to define defaults.
 
 # Define labels
 
-Labeler uses a json template file to merge the labels.
-The file needs to be placed at `~/.config/labeler/labels.json`.
+Labeler uses a JSON template file to merge the labels.
+The file must be placed under `~/.config/labeler/labels.json`.
 
 See [labels.json](labels.json) for an example.
 
@@ -31,15 +36,15 @@ See [labels.json](labels.json) for an example.
 
 ## Build
 
-Currently the app is not added to any package manager.
+Currently the app has not been added to any package manager.
 
-If you want to use the app you have to install go and to build it by your own.
+If you want to use the app, you need to install and build it yourself.
 
 ```sh
 go build ./cmd/labeler
 ```
 
-Afterwards simple copy the binary to your prefered location.
+After that, just copy the binary to your preferred location.
 
 ```sh
 cp labeler /usr/bin/
@@ -47,7 +52,7 @@ cp labeler /usr/bin/
 
 ## Debugging
 
-To set arguments in debug mode create a `.env` file in root of the repository.
+To set arguments in debug mode, create an `.env` file in the root of the repository.
 
 Then add the following content to it:
 
@@ -57,9 +62,11 @@ LABELER_OWNER=<GH username>
 LABELER_REPO=<GH repository name>
 ```
 
-> If this file exists VSCode will use the parameter by default from them.
+> If the file exists, VSCode applies the parameters as environment variables for the running process.
+>
+> See [.vscode/launch.json](.vscode/launch.json)
 
-Alternativelly you can also overwrite the parameter by setting args section in `.vscode/launch.json` file.
+Alternatively, you can override the parameter by setting the args section in the `.vscode/launch.json` file.
 
-Please ensure to never commit or push it to Github.
-For this reason the `.env` file is excluded in `.gitignore`.
+Please make sure you never push that file to Github.
+Because of this, the `.env` file is already excluded in the `.gitignore` file.
