@@ -8,6 +8,22 @@ Purpose of this application is to merge default label sets for your repository.
 labeler -t <token> -o <owner> -r <repo>
 ```
 
+# Build
+
+Currently the app is not added to any package manager.
+
+If you want to use the app you have to install go and to build it by your own.
+
+```sh
+go build ./cmd/labeler
+```
+
+Afterwards simple copy the binary to your prefered location.
+
+```sh
+cp labeler /usr/bin/
+```
+
 # Development
 
 To set parameter in debug mode create a `.env` file in root of the repository.
