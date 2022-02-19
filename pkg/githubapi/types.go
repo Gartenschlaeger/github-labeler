@@ -1,6 +1,6 @@
 package githubapi
 
-type GithubLabelsResponse []struct {
+type GithubLabelResponse struct {
 	Id          uint64 `json:"id"`
 	NodeId      string `json:"node_id"`
 	Url         string `json:"url"`

@@ -1,9 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"strings"
 
 	"Gartenschlaeger/github-labeler/pkg/githubapi"
@@ -29,11 +33,75 @@ func parseFlags() {
 	checkFlagValue(*repo, "Repository required. Use -r <repository>")
 }
 
+func readLabelSet() (*map[string]LabelDefinition, error) {
+	homePath, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
+
+	fullPath := path.Join(homePath, ".config", "github-labeler", "labels.json")
+
+	fileData, err := ioutil.ReadFile(fullPath)
+	if err != nil {
+		return nil, err
+	}
+
+	labelSet := []LabelDefinition{}
+	json.Unmarshal(fileData, &labelSet)
+
+	if len(labelSet) == 0 {
+		return nil, errors.New("list of expected labels are empty")
+	}
+
+	m := make(map[string]LabelDefinition)
+	for i := 0; i < len(labelSet); i++ {
+		m[labelSet[i].Name] = labelSet[i]
+	}
+
+	return &m, nil
+}
+
+func convertGithubLabelsToMap(labels *[]githubapi.GithubLabelResponse) *map[string]githubapi.GithubLabelResponse {
+	m := make(map[string]githubapi.GithubLabelResponse)
+	for i := 0; i < len(*labels); i++ {
+		l := (*labels)[i]
+		m[l.Name] = l
+	}
+
+	return &m
+}
+
 func main() {
 	parseFlags()
 
 	githubapi.SetBearerToken(*token)
 
-	labels := githubapi.GetLabelsForRepository(*owner, *repo)
-	fmt.Println(labels)
+	lsm, err := readLabelSet()
+	if err != nil {
+		panic(err)
+	}
+
+	rl, err := githubapi.GetLabelsForRepository(*owner, *repo)
+	if err != nil {
+		panic(err)
+	}
+
+	repositoryLabels := convertGithubLabelsToMap(rl)
+
+	// update and delete
+	for repoLabelName, repoLabel := range *repositoryLabels {
+		if lm, found := (*lsm)[repoLabelName]; found {
+			fmt.Println("update label", repoLabel.Name, "to", lm.Name)
+		} else {
+			fmt.Println("delete label", repoLabel.Name)
+		}
+	}
+
+	// create
+	for labelName, label := range *lsm {
+		if _, found := (*repositoryLabels)[labelName]; !found {
+			fmt.Println("create label", label.Name)
+		}
+	}
+
 }

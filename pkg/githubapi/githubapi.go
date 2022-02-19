@@ -2,6 +2,7 @@ package githubapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -28,12 +29,32 @@ func isBearerTokenAvailable() bool {
 	return true
 }
 
-func doRequest(url string, token string) (*http.Response, error) {
+func getRequest(url string, token string) (*http.Response, error) {
 	client := http.Client{
 		Timeout: time.Second * 30,
 	}
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "bearer "+token)
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func deleteRequest(url string, token string) (*http.Response, error) {
+	client := http.Client{
+		Timeout: time.Second * 30,
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -57,48 +78,53 @@ func readAsBytes(res *http.Response) (*[]byte, error) {
 	return &body, nil
 }
 
-// https://docs.github.com/en/rest/reference/issues#delete-a-label
-
-func DeleteLabel(owner string, repo string) {
-	if !isBearerTokenAvailable() {
-		return
-	}
-
-}
-
 // https://docs.github.com/en/rest/reference/issues#list-labels-for-a-repository
 
-func GetLabelsForRepository(owner string, repo string) GithubLabelsResponse {
+func GetLabelsForRepository(owner string, repo string) (*[]GithubLabelResponse, error) {
 	if !isBearerTokenAvailable() {
-		return nil
+		return nil, errors.New("cannot find bearer token for auth request")
 	}
 
 	url := fmt.Sprintf("%s/repos/%s/%s/labels?page=1&per_page=100", apiBaseUrl, owner, repo)
 
-	res, err := doRequest(url, bearerToken)
+	res, err := getRequest(url, bearerToken)
 	if err != nil {
-		log.Fatal(err)
-		return nil
+		return nil, err
 	}
 
 	b, err := readAsBytes(res)
 	if err != nil {
-		log.Fatal(err)
-		return nil
+		return nil, err
 	}
 
-	if res.StatusCode == 200 {
-		labels := GithubLabelsResponse{}
+	if res.StatusCode == http.StatusOK {
+		labels := []GithubLabelResponse{}
 
 		err := json.Unmarshal(*b, &labels)
 		if err != nil {
-			log.Fatal(err)
-			return nil
+			return nil, err
 		}
 
-		return labels
+		return &labels, nil
 	} else {
-		log.Fatal("Request responded with status code ", res.StatusCode)
-		return nil
+		return nil, fmt.Errorf("labels request failed with unexpected status code %d", res.StatusCode)
 	}
+}
+
+// https://docs.github.com/en/rest/reference/issues#delete-a-label
+
+func DeleteLabel(owner string, repo string, labelName string) bool {
+	if !isBearerTokenAvailable() {
+		return false
+	}
+
+	url := fmt.Sprintf("%s/repos/%s/%s/labels/%s", apiBaseUrl, owner, repo, labelName)
+
+	res, err := deleteRequest(url, bearerToken)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+
+	return res.StatusCode == http.StatusNoContent
 }

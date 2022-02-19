@@ -1,3 +1,6 @@
 {
-    "editor.formatOnSave": true
+	"editor.formatOnSave": true,
+	"editor.rulers": [120],
+	"prettier.useTabs": true,
+	"prettier.printWidth": 120
 }

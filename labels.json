@@ -1,0 +1,22 @@
+[
+	{
+		"name": "bug",
+		"description": "Something does not work as expected.",
+		"color": "B60205"
+	},
+	{
+		"name": "feature",
+		"description": "A new feature or an improvement.",
+		"color": "A4E28D"
+	},
+	{
+		"name": "refactoring",
+		"description": "Refactoring of existing code.",
+		"color": "B19136"
+	},
+	{
+		"name": "testing",
+		"description": "Testing related tasks.",
+		"color": "9220E9"
+	}
+]
