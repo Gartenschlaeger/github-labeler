@@ -10,15 +10,15 @@ Simple run the binary and define the following arguments:
 -   `-o` Your Github Username
 -   `-r` The related repository name
 
+```sh
+labeler -t <token> -o <owner> -r <repo>
+```
+
 You can also use the following environment variables to define defaults.
 
 -   `LABELER_TOKEN`
 -   `LABELER_OWNER`
 -   `LABELER_REPO`
-
-```sh
-labeler -t <token> -o <owner> -r <repo>
-```
 
 # Define labels
 
