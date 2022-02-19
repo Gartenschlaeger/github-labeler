@@ -19,7 +19,7 @@ var token, owner, repo *string
 
 func checkFlagValue(value string, errorMsg string) {
 	if strings.TrimSpace(value) == "" {
-		fmt.Println(errorMsg)
+		fmt.Printf("%v%s%v\n", cli.Yellow, errorMsg, cli.Reset)
 		os.Exit(1)
 	}
 }
