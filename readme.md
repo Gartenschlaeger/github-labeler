@@ -4,11 +4,32 @@ Purpose of this application is to merge default label sets for your repository.
 
 # Usage
 
+Simple run the binary and define the following arguments:
+
+-   `-t` Your Github Token used for Github API requests
+-   `-o` Your Github Username
+-   `-r` The related repository name
+
+You can also use the following environment variables to define defaults.
+
+-   `LABELER_TOKEN`
+-   `LABELER_OWNER`
+-   `LABELER_REPO`
+
 ```sh
 labeler -t <token> -o <owner> -r <repo>
 ```
 
-# Build
+# Define labels
+
+Labeler uses a json template file to merge the labels.
+The file needs to be placed at `~/.config/labeler/labels.json`.
+
+See [labels.json](labels.json) for an example.
+
+# Development
+
+## Build
 
 Currently the app is not added to any package manager.
 
@@ -24,9 +45,9 @@ Afterwards simple copy the binary to your prefered location.
 cp labeler /usr/bin/
 ```
 
-# Development
+## Debugging
 
-To set parameter in debug mode create a `.env` file in root of the repository.
+To set arguments in debug mode create a `.env` file in root of the repository.
 
 Then add the following content to it:
 
