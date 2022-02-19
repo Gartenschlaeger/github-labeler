@@ -75,6 +75,29 @@ func postJsonRequest(url string, body []byte) (*http.Response, error) {
 	return res, nil
 }
 
+func patchJsonRequest(url string, body []byte) (*http.Response, error) {
+	client := http.Client{
+		Timeout: time.Second * 30,
+	}
+
+	bd := bytes.NewBuffer(body)
+
+	req, err := http.NewRequest(http.MethodPatch, url, bd)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "bearer "+bearerToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func deleteRequest(url string) (*http.Response, error) {
 	if !isBearerTokenAvailable() {
 		return nil, errors.New("bearer token missing")
@@ -172,4 +195,28 @@ func CreateLabel(owner string, repo string, label *types.LabelDefinition) (bool,
 	}
 
 	return res.StatusCode == http.StatusCreated, nil
+}
+
+// https://docs.github.com/en/rest/reference/issues#update-a-label
+
+func UpdateLabel(owner string, repo string, oldName string, label *types.LabelDefinition) (bool, error) {
+	url := fmt.Sprintf("%s/repos/%s/%s/labels/%s", apiBaseUrl, owner, repo, oldName)
+
+	reqObject := CreateLabelRequest{
+		Name:        label.Name,
+		Color:       label.Color,
+		Description: label.Description,
+	}
+
+	reqData, err := json.Marshal(reqObject)
+	if err != nil {
+		return false, err
+	}
+
+	res, err := patchJsonRequest(url, reqData)
+	if err != nil {
+		return false, err
+	}
+
+	return res.StatusCode == http.StatusOK, nil
 }

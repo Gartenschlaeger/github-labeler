@@ -92,7 +92,7 @@ func main() {
 	// create
 	for labelName, label := range *definedLabels {
 		if _, found := (*repoLabels)[labelName]; !found {
-			fmt.Println("create label", label.Name)
+			fmt.Println("CREATE", label.Name)
 			githubapi.CreateLabel(*owner, *repo, &label)
 		}
 	}
@@ -100,10 +100,12 @@ func main() {
 	// update and delete
 	for repoLabelName, repoLabel := range *repoLabels {
 		if matchedLabel, found := (*definedLabels)[repoLabelName]; found {
-			fmt.Println("update label", repoLabel.Name, "to", matchedLabel.Name)
-
+			if matchedLabel.Name != repoLabel.Name || matchedLabel.Color != repoLabel.Color || matchedLabel.Description != repoLabel.Description {
+				fmt.Println("UPDATE", repoLabel.Name)
+				githubapi.UpdateLabel(*owner, *repo, repoLabelName, &matchedLabel)
+			}
 		} else {
-			fmt.Println("delete label", repoLabel.Name)
+			fmt.Println("DELETE", repoLabel.Name)
 			githubapi.DeleteLabel(*owner, *repo, repoLabelName)
 		}
 	}
