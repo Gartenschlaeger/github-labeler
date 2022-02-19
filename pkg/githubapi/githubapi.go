@@ -18,7 +18,7 @@ func SetBearerToken(token string) {
 	bearerToken = token
 }
 
-func isSettingsAvailable() bool {
+func isBearerTokenAvailable() bool {
 	hasToken := strings.TrimSpace(bearerToken) != ""
 	if !hasToken {
 		log.Fatal("Token was not set. Call SetToken to set the api token before doing any request.")
@@ -57,14 +57,25 @@ func readAsBytes(res *http.Response) (*[]byte, error) {
 	return &body, nil
 }
 
+// https://docs.github.com/en/rest/reference/issues#delete-a-label
+
+func DeleteLabel(owner string, repo string) {
+	if !isBearerTokenAvailable() {
+		return
+	}
+
+}
+
+// https://docs.github.com/en/rest/reference/issues#list-labels-for-a-repository
+
 func GetLabelsForRepository(owner string, repo string) GithubLabelsResponse {
-	if !isSettingsAvailable() {
+	if !isBearerTokenAvailable() {
 		return nil
 	}
 
-	url := fmt.Sprintf("%s/repos/%s/%s/labels", apiBaseUrl, owner, repo)
+	url := fmt.Sprintf("%s/repos/%s/%s/labels?page=1&per_page=100", apiBaseUrl, owner, repo)
 
-	res, err := doRequest(url, "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")
+	res, err := doRequest(url, bearerToken)
 	if err != nil {
 		log.Fatal(err)
 		return nil
