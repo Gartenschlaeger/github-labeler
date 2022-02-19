@@ -1,4 +1,4 @@
-package main
+package types
 
 type LabelDefinition struct {
 	Name        string `json:"name"`

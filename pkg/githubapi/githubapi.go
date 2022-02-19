@@ -1,6 +1,7 @@
 package githubapi
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +10,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"Gartenschlaeger/github-labeler/pkg/types"
 )
 
 const apiBaseUrl = "https://api.github.com"
@@ -29,7 +32,7 @@ func isBearerTokenAvailable() bool {
 	return true
 }
 
-func getRequest(url string, token string) (*http.Response, error) {
+func getRequest(url string) (*http.Response, error) {
 	client := http.Client{
 		Timeout: time.Second * 30,
 	}
@@ -39,7 +42,7 @@ func getRequest(url string, token string) (*http.Response, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "bearer "+token)
+	req.Header.Set("Authorization", "bearer "+bearerToken)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -49,7 +52,34 @@ func getRequest(url string, token string) (*http.Response, error) {
 	return res, nil
 }
 
-func deleteRequest(url string, token string) (*http.Response, error) {
+func postJsonRequest(url string, body []byte) (*http.Response, error) {
+	client := http.Client{
+		Timeout: time.Second * 30,
+	}
+
+	bd := bytes.NewBuffer(body)
+
+	req, err := http.NewRequest(http.MethodPost, url, bd)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "bearer "+bearerToken)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func deleteRequest(url string) (*http.Response, error) {
+	if !isBearerTokenAvailable() {
+		return nil, errors.New("bearer token missing")
+	}
+
 	client := http.Client{
 		Timeout: time.Second * 30,
 	}
@@ -59,7 +89,7 @@ func deleteRequest(url string, token string) (*http.Response, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", "bearer "+token)
+	req.Header.Set("Authorization", "bearer "+bearerToken)
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -81,13 +111,9 @@ func readAsBytes(res *http.Response) (*[]byte, error) {
 // https://docs.github.com/en/rest/reference/issues#list-labels-for-a-repository
 
 func GetLabelsForRepository(owner string, repo string) (*[]GithubLabelResponse, error) {
-	if !isBearerTokenAvailable() {
-		return nil, errors.New("cannot find bearer token for auth request")
-	}
-
 	url := fmt.Sprintf("%s/repos/%s/%s/labels?page=1&per_page=100", apiBaseUrl, owner, repo)
 
-	res, err := getRequest(url, bearerToken)
+	res, err := getRequest(url)
 	if err != nil {
 		return nil, err
 	}
@@ -113,18 +139,37 @@ func GetLabelsForRepository(owner string, repo string) (*[]GithubLabelResponse, 
 
 // https://docs.github.com/en/rest/reference/issues#delete-a-label
 
-func DeleteLabel(owner string, repo string, labelName string) bool {
-	if !isBearerTokenAvailable() {
-		return false
-	}
-
+func DeleteLabel(owner string, repo string, labelName string) (bool, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/labels/%s", apiBaseUrl, owner, repo, labelName)
 
-	res, err := deleteRequest(url, bearerToken)
+	res, err := deleteRequest(url)
 	if err != nil {
-		log.Fatal(err)
-		return false
+		return false, err
 	}
 
-	return res.StatusCode == http.StatusNoContent
+	return res.StatusCode == http.StatusNoContent, nil
+}
+
+// https://docs.github.com/en/rest/reference/issues#create-a-label
+
+func CreateLabel(owner string, repo string, label *types.LabelDefinition) (bool, error) {
+	url := fmt.Sprintf("%s/repos/%s/%s/labels", apiBaseUrl, owner, repo)
+
+	reqObject := CreateLabelRequest{
+		Name:        label.Name,
+		Color:       label.Color,
+		Description: label.Description,
+	}
+
+	reqData, err := json.Marshal(reqObject)
+	if err != nil {
+		return false, err
+	}
+
+	res, err := postJsonRequest(url, reqData)
+	if err != nil {
+		return false, err
+	}
+
+	return res.StatusCode == http.StatusCreated, nil
 }

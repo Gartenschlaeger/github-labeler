@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"Gartenschlaeger/github-labeler/pkg/githubapi"
+	"Gartenschlaeger/github-labeler/pkg/types"
 )
 
 var token, owner, repo *string
@@ -33,7 +34,7 @@ func parseFlags() {
 	checkFlagValue(*repo, "Repository required. Use -r <repository>")
 }
 
-func readLabelSet() (*map[string]LabelDefinition, error) {
+func readLabelsDefinitions() (*map[string]types.LabelDefinition, error) {
 	homePath, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -46,14 +47,14 @@ func readLabelSet() (*map[string]LabelDefinition, error) {
 		return nil, err
 	}
 
-	labelSet := []LabelDefinition{}
+	labelSet := []types.LabelDefinition{}
 	json.Unmarshal(fileData, &labelSet)
 
 	if len(labelSet) == 0 {
 		return nil, errors.New("list of expected labels are empty")
 	}
 
-	m := make(map[string]LabelDefinition)
+	m := make(map[string]types.LabelDefinition)
 	for i := 0; i < len(labelSet); i++ {
 		m[labelSet[i].Name] = labelSet[i]
 	}
@@ -76,7 +77,7 @@ func main() {
 
 	githubapi.SetBearerToken(*token)
 
-	lsm, err := readLabelSet()
+	definedLabels, err := readLabelsDefinitions()
 	if err != nil {
 		panic(err)
 	}
@@ -86,21 +87,24 @@ func main() {
 		panic(err)
 	}
 
-	repositoryLabels := convertGithubLabelsToMap(rl)
+	repoLabels := convertGithubLabelsToMap(rl)
 
-	// update and delete
-	for repoLabelName, repoLabel := range *repositoryLabels {
-		if lm, found := (*lsm)[repoLabelName]; found {
-			fmt.Println("update label", repoLabel.Name, "to", lm.Name)
-		} else {
-			fmt.Println("delete label", repoLabel.Name)
+	// create
+	for labelName, label := range *definedLabels {
+		if _, found := (*repoLabels)[labelName]; !found {
+			fmt.Println("create label", label.Name)
+			githubapi.CreateLabel(*owner, *repo, &label)
 		}
 	}
 
-	// create
-	for labelName, label := range *lsm {
-		if _, found := (*repositoryLabels)[labelName]; !found {
-			fmt.Println("create label", label.Name)
+	// update and delete
+	for repoLabelName, repoLabel := range *repoLabels {
+		if matchedLabel, found := (*definedLabels)[repoLabelName]; found {
+			fmt.Println("update label", repoLabel.Name, "to", matchedLabel.Name)
+
+		} else {
+			fmt.Println("delete label", repoLabel.Name)
+			githubapi.DeleteLabel(*owner, *repo, repoLabelName)
 		}
 	}
 
