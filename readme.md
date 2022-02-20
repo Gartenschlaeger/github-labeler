@@ -22,6 +22,7 @@ labeler -t <token> -o <owner> -r <repo>
 Optional arguments:
 
 -   `--dry-mode` Activates dry mode (sumulation, no changes are made)
+-   `--skip-delete` Skips deletion of unknown labels
 
 You can also use the following environment variables to define default values.
 
