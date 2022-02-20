@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-const version = "1.2.0"
+const version = "1.3.0"
 
 func VersionCommand(args []string) error {
 	fs := flag.NewFlagSet("version", flag.ExitOnError)
