@@ -44,14 +44,18 @@ func mergeLabels() {
 		if matchedLabel, found := (*definedLabels)[repoLabelName]; found {
 			if matchedLabel.Name != repoLabel.Name || matchedLabel.Color != repoLabel.Color || matchedLabel.Description != repoLabel.Description {
 				fmt.Printf("%vUPDATE '%s'%v\n", cli.Blue, repoLabel.Name, cli.Reset)
+
 				if !arguments.IsDryMode {
 					githubapi.UpdateLabel(*arguments.Owner, *arguments.Repository, repoLabelName, &matchedLabel)
 				}
 			}
 		} else {
-			fmt.Printf("%vDELETE '%s'%v\n", cli.Red, repoLabel.Name, cli.Reset)
-			if !arguments.IsDryMode {
-				githubapi.DeleteLabel(*arguments.Owner, *arguments.Repository, repoLabelName)
+			if !arguments.SkipDelete {
+				fmt.Printf("%vDELETE '%s'%v\n", cli.Red, repoLabel.Name, cli.Reset)
+
+				if !arguments.IsDryMode {
+					githubapi.DeleteLabel(*arguments.Owner, *arguments.Repository, repoLabelName)
+				}
 			}
 		}
 	}

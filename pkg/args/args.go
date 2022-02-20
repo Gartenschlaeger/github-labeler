@@ -15,6 +15,12 @@ type Arguments struct {
 	Owner      *string
 	Repository *string
 	IsDryMode  bool
+	SkipDelete bool
+}
+
+// hasOptionalFlag checks if a flag is passed
+func hasOptionalBoolFlag(value *bool) bool {
+	return value != nil && *value
 }
 
 // requireFlag checks if a required flag exists
@@ -40,10 +46,12 @@ func Parse() *Arguments {
 	args.Repository = flag.String("r", os.Getenv("LABELER_REPO"), "Github repository name")
 
 	dryMode := flag.Bool("dry-mode", false, "Enable dry mode")
+	skipDelete := flag.Bool("skip-delete", false, "Skip deletion of unknown labels.")
 
 	flag.Parse()
 
-	args.IsDryMode = dryMode != nil && *dryMode
+	args.IsDryMode = hasOptionalBoolFlag(dryMode)
+	args.SkipDelete = hasOptionalBoolFlag(skipDelete)
 
 	validateFlags(args)
 
