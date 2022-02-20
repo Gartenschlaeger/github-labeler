@@ -39,6 +39,27 @@ See [labels.json](labels.json) for an example.
 
 # Development
 
+## Debugging
+
+To set arguments in debug mode, create an `.env` file in the root of the repository.
+
+Then add the following content to it:
+
+```
+LABELER_TOKEN=<GH API bearer token>
+LABELER_OWNER=<GH username>
+LABELER_REPO=<GH repository name>
+```
+
+> If the file exists, VSCode applies the parameters as environment variables for the running process.
+>
+> See [.vscode/launch.json](.vscode/launch.json)
+
+Alternatively, you can override the parameter by setting the args section in the `.vscode/launch.json` file.
+
+Please make sure you never push that file to Github.
+Because of this, the `.env` file is already excluded in the `.gitignore` file.
+
 ## Build
 
 Currently the app has not been added to any package manager.
@@ -60,24 +81,3 @@ Alternatively, Go can also take care for the installation:
 ```sh
 go install cmd/app/*.go
 ```
-
-## Debugging
-
-To set arguments in debug mode, create an `.env` file in the root of the repository.
-
-Then add the following content to it:
-
-```
-LABELER_TOKEN=<GH API bearer token>
-LABELER_OWNER=<GH username>
-LABELER_REPO=<GH repository name>
-```
-
-> If the file exists, VSCode applies the parameters as environment variables for the running process.
->
-> See [.vscode/launch.json](.vscode/launch.json)
-
-Alternatively, you can override the parameter by setting the args section in the `.vscode/launch.json` file.
-
-Please make sure you never push that file to Github.
-Because of this, the `.env` file is already excluded in the `.gitignore` file.
