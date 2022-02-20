@@ -21,7 +21,7 @@ labeler -t <token> -o <owner> -r <repo>
 
 Optional arguments:
 
--   `dry-mode` Activates dry mode (sumulation, no changes are made)
+-   `--dry-mode` Activates dry mode (sumulation, no changes are made)
 
 You can also use the following environment variables to define default values.
 
