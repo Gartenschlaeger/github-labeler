@@ -6,7 +6,7 @@
 			"type": "go",
 			"request": "launch",
 			"mode": "auto",
-			"program": "${workspaceFolder}/cmd/labeler",
+			"program": "${workspaceFolder}/cmd/app",
 			"args": ["merge", "--dry-mode"],
 			"envFile": "${workspaceFolder}/.env"
 		},
@@ -15,7 +15,7 @@
 			"type": "go",
 			"request": "launch",
 			"mode": "auto",
-			"program": "${workspaceFolder}/cmd/labeler",
+			"program": "${workspaceFolder}/cmd/app",
 			"args": ["version"],
 			"envFile": "${workspaceFolder}/.env"
 		}

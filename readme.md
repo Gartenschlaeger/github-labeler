@@ -46,13 +46,19 @@ Currently the app has not been added to any package manager.
 If you want to use the app, you need to install and build it yourself.
 
 ```sh
-go build ./cmd/labeler
+go build -o labeler ./cmd/app/*.go
 ```
 
 After that, just copy the binary to your preferred location.
 
 ```sh
 cp labeler /usr/bin/
+```
+
+Alternatively, Go can also take care for the installation:
+
+```sh
+go install cmd/app/*.go
 ```
 
 ## Debugging
