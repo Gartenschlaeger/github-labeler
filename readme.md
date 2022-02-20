@@ -16,7 +16,7 @@ Just run the binary and define the following arguments:
 -   `-r` The related repository name
 
 ```sh
-labeler -t <token> -o <owner> -r <repo>
+labeler merge -t <token> -o <owner> -r <repo>
 ```
 
 Optional arguments:

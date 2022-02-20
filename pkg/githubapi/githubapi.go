@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"Gartenschlaeger/github-labeler/pkg/types"
 )
 
 const apiBaseUrl = "https://api.github.com"
@@ -175,13 +173,13 @@ func DeleteLabel(owner string, repo string, labelName string) (bool, error) {
 
 // https://docs.github.com/en/rest/reference/issues#create-a-label
 
-func CreateLabel(owner string, repo string, label *types.LabelDefinition) (bool, error) {
+func CreateLabel(owner string, repo string, name string, color string, description string) (bool, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/labels", apiBaseUrl, owner, repo)
 
 	reqObject := CreateLabelRequest{
-		Name:        label.Name,
-		Color:       label.Color,
-		Description: label.Description,
+		Name:        name,
+		Color:       color,
+		Description: description,
 	}
 
 	reqData, err := json.Marshal(reqObject)
@@ -199,13 +197,13 @@ func CreateLabel(owner string, repo string, label *types.LabelDefinition) (bool,
 
 // https://docs.github.com/en/rest/reference/issues#update-a-label
 
-func UpdateLabel(owner string, repo string, oldName string, label *types.LabelDefinition) (bool, error) {
+func UpdateLabel(owner string, repo string, oldName string, newName string, color string, description string) (bool, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/labels/%s", apiBaseUrl, owner, repo, oldName)
 
 	reqObject := CreateLabelRequest{
-		Name:        label.Name,
-		Color:       label.Color,
-		Description: label.Description,
+		Name:        newName,
+		Color:       color,
+		Description: description,
 	}
 
 	reqData, err := json.Marshal(reqObject)
